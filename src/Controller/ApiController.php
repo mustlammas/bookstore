@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class ApiController extends Controller
 {
@@ -43,11 +44,12 @@ class ApiController extends Controller
      * @Route("/api/v1/books/{isbn}")
      * @Method("POST")
      */
-    public function add($isbn)
+    public function add($isbn, Request $request)
     {
+        $content = $request->getContent();
         $this->logger->info("Adding book: " . $isbn);
-        //$book = $this->serializer->deserialize($json, Book::class);
-        //$this->books->add($book);
+        $book = $this->serializer->deserialize($content, Book::class);
+        $this->books->add($book);
         return new JsonResponse();
     }
 }
