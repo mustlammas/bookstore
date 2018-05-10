@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use \Datetime;
 use App\Dto\Book;
+use App\Dto\Label;
 use App\Service\BookService;
 use App\Service\JsonSerializer;
 
@@ -26,9 +27,23 @@ class ApiController extends Controller {
         $this->serializer = $serializer;
         $this->logger = $logger;
 
-        $this->bookService->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
-        $this->bookService->add(new Book("1-86092-022-5", "A Boy at Seven", new DateTime()));
-        $this->bookService->add(new Book("1-86092-010-1", "The Higgler", new DateTime()));
+        $this->bookService->add(new Book(
+            "978-1-56619-909-4",
+            "I Was Told There'd Be Cake",
+            new DateTime(),
+            [new Label(1, "Fiction")]));
+
+        $this->bookService->add(new Book(
+            "1-86092-022-5",
+            "A Boy at Seven",
+             new DateTime(),
+             [new Label(2, "Science Fiction")]));
+
+        $this->bookService->add(new Book(
+            "1-86092-010-1",
+            "The Higgler",
+            new DateTime(),
+            [new Label(3, "Biography")]));
     }
 
     /**

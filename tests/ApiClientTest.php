@@ -9,40 +9,42 @@ use Unirest\Response;
 
 class ApiClientTest extends TestCase {
 
+    const BOOKS_URL = 'http://localhost:8000/api/v1/books';
+
     public function testListBooks() {
-        $response = Request::get('http://localhost:8000/api/v1/books');
+        $response = Request::get(ApiClientTest::BOOKS_URL);
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
     }
 
     public function testSearchForBooksByTitle() {
-        $response = Request::get('http://localhost:8000/api/v1/books?title=cake');
+        $response = Request::get(ApiClientTest::BOOKS_URL . '?title=cake');
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
     }
 
     public function testSearchForBooksByIsbn() {
-        $response = Request::get('http://localhost:8000/api/v1/books?isbn=86092');
+        $response = Request::get(ApiClientTest::BOOKS_URL . '?isbn=86092');
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("1-86092-022-5", $response->body[0]->isbn);
         $this->assertEquals("1-86092-010-1", $response->body[1]->isbn);
     }
 
     public function testSearchForBooksByIsbnAndTitle() {
-        $response = Request::get('http://localhost:8000/api/v1/books?isbn=56619&title=cake');
+        $response = Request::get(ApiClientTest::BOOKS_URL . '?isbn=56619&title=cake');
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("978-1-56619-909-4", $response->body[0]->isbn);
         $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
     }
 
     public function testGetBookByIsbn() {
-        $response = Request::get('http://localhost:8000/api/v1/books/978-1-56619-909-4');
+        $response = Request::get(ApiClientTest::BOOKS_URL . '/978-1-56619-909-4');
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("978-1-56619-909-4", $response->body->isbn);
         $this->assertEquals("I Was Told There'd Be Cake", $response->body->title);
     }
 
     public function testGetBookByNonExistentIsbn() {
-        $response = Request::get('http://localhost:8000/api/v1/books/978-1-00000-000-4');
+        $response = Request::get(ApiClientTest::BOOKS_URL . '/978-1-00000-000-4');
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND, $response->code);
     }
 
@@ -55,7 +57,7 @@ class ApiClientTest extends TestCase {
             "addedOn" => "2000-01-10T08:41:33+00:00"
         );
         $body = Body::json($data);
-        $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
+        $response = Request::post(ApiClientTest::BOOKS_URL . "/" . $isbn, $headers, $body);
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_CREATED, $response->code);
     }
 
@@ -68,7 +70,7 @@ class ApiClientTest extends TestCase {
             "addedOn" => "2000-01-10T08:41:33+00:00"
         );
         $body = Body::json($data);
-        $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
+        $response = Request::post(ApiClientTest::BOOKS_URL . "/" . $isbn, $headers, $body);
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $response->code);
     }
 
@@ -81,7 +83,7 @@ class ApiClientTest extends TestCase {
             "c" => "2000-01-10T08:41:33+00:00"
         );
         $body = Body::json($data);
-        $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
+        $response = Request::post(ApiClientTest::BOOKS_URL . "/" . $isbn, $headers, $body);
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR, $response->code);
     }
 }

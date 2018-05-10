@@ -2,32 +2,35 @@
 
 namespace App\Dto;
 
-class Book
-{
+use App\Dto\Label;
+
+class Book {
     private $isbn;
     private $title;
     private $addedOn;
+    private $labels;
 
-    public function __construct($isbn, $title, $addedOn)
-    {
+    public function __construct($isbn, $title, $addedOn, $labels) {
         $this->isbn = $isbn;
         $this->title = $title;
         $this->addedOn = $addedOn;
+        $this->labels = $labels;
     }
 
-    public function getIsbn()
-    {
+    public function getIsbn() {
         return $this->isbn;
     }
 
-    public function getTitle()
-    {
+    public function getTitle() {
         return $this->title;
     }
 
-    public function getAddedOn()
-    {
+    public function getAddedOn() {
         return $this->addedOn;
+    }
+
+    public function getLabels() {
+        return $this->labels;
     }
 }
 
