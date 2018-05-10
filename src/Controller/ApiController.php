@@ -7,22 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 use \Datetime;
 use App\Dto\Book;
 use App\InMemoryBookStore;
-
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use App\Service\JsonSerializer;
 
 class ApiController extends Controller
 {
     private $serializer;
     private $books;
 
-    public function __construct() {
-        $encoders = array(new JsonEncoder());
-        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
-        $this->serializer = new Serializer($normalizers, $encoders);
+    public function __construct(JsonSerializer $serializer) {
+        $this->serializer = $serializer;
         $this->books = new InMemoryBookStore();
 
         $this->books->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
@@ -32,8 +25,13 @@ class ApiController extends Controller
 
     public function list()
     {
-         $json = $this->serializer->serialize($this->books->getAll(), 'json');
+         $json = $this->serializer->serialize($this->books->getAll());
          return new Response($json);
+    }
+
+    public function add($json)
+    {
+        $book = $this->serializer->deserialize($json, Book::class);
     }
 }
 
