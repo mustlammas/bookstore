@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use \Datetime;
 use App\Dto\Book;
-use App\InMemoryBookStore;
+use App\Service\BookService;
 use App\Service\JsonSerializer;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,10 +22,10 @@ class ApiController extends Controller
     private $books;
     private $logger;
 
-    public function __construct(JsonSerializer $serializer, LoggerInterface $logger) {
+    public function __construct(BookService $bookService, JsonSerializer $serializer, LoggerInterface $logger) {
+        $this->books = $bookService;
         $this->serializer = $serializer;
         $this->logger = $logger;
-        $this->books = new InMemoryBookStore();
 
         $this->books->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
         $this->books->add(new Book("1-86092-022-5", "A Boy at Seven", new DateTime()));
@@ -36,9 +36,16 @@ class ApiController extends Controller
      * @Route("/api/v1/books")
      * @Method("GET")
      */
-    public function list() {
-         $json = $this->serializer->serialize($this->books->getAll());
-         return JsonResponse::fromJsonString($json);
+    public function list(Request $request) {
+         $title = $request->query->get('title');
+         if (!empty($title)) {
+             $this->logger->info("Searching for books by title: " . $title);
+             $json = $this->serializer->serialize($this->books->getAll());
+             return JsonResponse::fromJsonString($json);
+         } else {
+             $json = $this->serializer->serialize($this->books->getAll());
+             return JsonResponse::fromJsonString($json);
+         }
     }
 
     /**

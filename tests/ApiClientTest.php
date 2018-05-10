@@ -14,6 +14,11 @@ class ApiClientTest extends TestCase {
         $this->assertEquals(200, $response->code);
     }
 
+    public function testSearchForBooksByTitle() {
+        $response = Request::get('http://localhost:8000/api/v1/books?title=cake');
+        $this->assertEquals(200, $response->code);
+    }
+
     public function testAddBook() {
         $headers = array('Content-Type' => 'application/json');
         $isbn = "978-1-56619-666-5";
