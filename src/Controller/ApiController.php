@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use \Datetime;
 use App\Dto\Book;
 use App\InMemoryBookStore;
@@ -26,12 +26,13 @@ class ApiController extends Controller
     public function list()
     {
          $json = $this->serializer->serialize($this->books->getAll());
-         return new Response($json);
+         return JsonResponse::fromJsonString($json);
     }
 
     public function add($json)
     {
         $book = $this->serializer->deserialize($json, Book::class);
+        $this->books->add($book);
     }
 }
 

@@ -3,23 +3,28 @@
 namespace App\Tests\Controller;
 
 use App\Controller\ApiController;
+use App\Service\JsonSerializer;
+
 use PHPUnit\Framework\TestCase;
 
 class ApiControllerTest extends TestCase
 {
     public function testAddBook()
     {
-        $controller = new ApiController();
+        $isbn = "978-1-56619-666-5";
+        $serializer = new JsonSerializer();
+        $controller = new ApiController($serializer);
         $json = "{
-            \"isbn\":\"978-1-56619-909-4\",
-            \"title\":\"I Was Told There'd Be Cake\",
-            \"addedOn\":\"2018-05-10T08:41:33+00:00\"}";
+            \"isbn\":\"{$isbn}\",
+            \"title\":\"I Was Told There'd Be Cake 2\",
+            \"addedOn\":\"2000-01-10T08:41:33+00:00\"}";
+
         $controller->add($json);
+        $booksJson = $controller->list()->getContent();
+        $books = $serializer->deserialize($booksJson, 'App\Dto\Book[]');
+        $book = $books[count($books) - 1];
 
-        $list = $controller->list();
-        echo $list;
-
-        $this->assertEquals(42, 42);
+        $this->assertEquals($isbn, $book->getIsbn());
     }
 }
 
