@@ -2,10 +2,10 @@
 
 namespace App\Tests;
 
-use Symfony\Component\HttpFoundation\Response;
 use PHPUnit\Framework\TestCase;
 use Unirest\Request\Body;
 use Unirest\Request;
+use Unirest\Response;
 
 class ApiClientTest extends TestCase {
 
@@ -17,6 +17,7 @@ class ApiClientTest extends TestCase {
     public function testSearchForBooksByTitle() {
         $response = Request::get('http://localhost:8000/api/v1/books?title=cake');
         $this->assertEquals(200, $response->code);
+        $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
     }
 
     public function testAddBook() {
@@ -29,7 +30,7 @@ class ApiClientTest extends TestCase {
         );
         $body = Body::json($data);
         $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
-        $this->assertEquals(201, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_CREATED, $response->code);
     }
 
     public function testAddBookInvalidContentType() {
@@ -42,7 +43,7 @@ class ApiClientTest extends TestCase {
         );
         $body = Body::json($data);
         $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
-        $this->assertEquals(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $response->code);
     }
 
     public function testAddBookInvalidContent() {
@@ -55,7 +56,7 @@ class ApiClientTest extends TestCase {
         );
         $body = Body::json($data);
         $response = Request::post('http://localhost:8000/api/v1/books/' . $isbn, $headers, $body);
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR, $response->code);
     }
 }
 

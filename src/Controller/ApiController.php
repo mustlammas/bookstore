@@ -38,12 +38,12 @@ class ApiController extends Controller
      */
     public function list(Request $request) {
          $title = $request->query->get('title');
-         if (!empty($title)) {
-             $this->logger->info("Searching for books by title: " . $title);
+         if (empty($title)) {
              $json = $this->serializer->serialize($this->books->getAll());
              return JsonResponse::fromJsonString($json);
          } else {
-             $json = $this->serializer->serialize($this->books->getAll());
+             $this->logger->info("Searching for books by title: " . $title);
+             $json = $this->serializer->serialize($this->books->getByTitle($title));
              return JsonResponse::fromJsonString($json);
          }
     }
