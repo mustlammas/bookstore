@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use \Datetime;
 use App\Dto\Book;
 use App\InMemoryBookStore;
 use App\Service\JsonSerializer;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class ApiController extends Controller
 {
@@ -23,12 +26,20 @@ class ApiController extends Controller
         $this->books->add(new Book("1-86092-010-1", "The Higgler", new DateTime()));
     }
 
+    /**
+     * @Route("/api/v1/books")
+     * @Method("GET")
+     */
     public function list()
     {
          $json = $this->serializer->serialize($this->books->getAll());
          return JsonResponse::fromJsonString($json);
     }
 
+    /**
+     * @Route("/api/v1/books")
+     * @Method("POST")
+     */
     public function add($json)
     {
         $book = $this->serializer->deserialize($json, Book::class);
