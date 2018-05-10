@@ -16,20 +16,19 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiController extends Controller
-{
+class ApiController extends Controller {
     private $serializer;
-    private $books;
+    private $bookService;
     private $logger;
 
     public function __construct(BookService $bookService, JsonSerializer $serializer, LoggerInterface $logger) {
-        $this->books = $bookService;
+        $this->bookService = $bookService;
         $this->serializer = $serializer;
         $this->logger = $logger;
 
-        $this->books->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
-        $this->books->add(new Book("1-86092-022-5", "A Boy at Seven", new DateTime()));
-        $this->books->add(new Book("1-86092-010-1", "The Higgler", new DateTime()));
+        $this->bookService->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
+        $this->bookService->add(new Book("1-86092-022-5", "A Boy at Seven", new DateTime()));
+        $this->bookService->add(new Book("1-86092-010-1", "The Higgler", new DateTime()));
     }
 
     /**
@@ -38,14 +37,9 @@ class ApiController extends Controller
      */
     public function list(Request $request) {
          $title = $request->query->get('title');
-         if (empty($title)) {
-             $json = $this->serializer->serialize($this->books->getAll());
-             return JsonResponse::fromJsonString($json);
-         } else {
-             $this->logger->info("Searching for books by title: " . $title);
-             $json = $this->serializer->serialize($this->books->getByTitle($title));
-             return JsonResponse::fromJsonString($json);
-         }
+         $isbn = $request->query->get('isbn');
+         $json = $this->serializer->serialize($this->bookService->search($title, $isbn));
+         return JsonResponse::fromJsonString($json);
     }
 
     /**
@@ -60,7 +54,7 @@ class ApiController extends Controller
             $content = $request->getContent();
             $this->logger->info("Adding book: " . $isbn);
             $book = $this->serializer->deserialize($content, Book::class);
-            $this->books->add($book);
+            $this->bookService->add($book);
             $response->setStatusCode(Response::HTTP_CREATED);
         } else {
             $response->setStatusCode(Response::HTTP_UNSUPPORTED_MEDIA_TYPE);

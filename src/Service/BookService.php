@@ -18,10 +18,13 @@ class BookService {
         return array_values($this->books);
     }
 
-    public function getByTitle($title) {
+    public function search($title, $isbn) {
         $result = [];
+
         foreach(array_values($this->books) as &$book) {
-            if (strpos(strtoupper($book->getTitle()), strtoupper($title)) !== false) {
+            $titleMatch = $this->partialMatch($title, $book->getTitle());
+            $isbnMatch = $this->partialMatch($isbn, $book->getIsbn());
+            if ($titleMatch && $isbnMatch) {
                 array_push($result, $book);
             }
         }
@@ -30,6 +33,14 @@ class BookService {
 
     public function add(Book $book) {
         $this->books[$book->getIsbn()] = $book;
+    }
+
+    function partialMatch($search, $candidate) {
+        if (empty($search)) {
+            return true;
+        } else {
+            return strpos(strtoupper($candidate), strtoupper($search));
+        }
     }
 }
 
