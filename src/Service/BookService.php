@@ -18,9 +18,18 @@ class BookService {
         return array_values($this->books);
     }
 
+    public function getByIsbn($isbn) {
+        foreach(array_values($this->books) as &$book) {
+            if ($isbn === $book->getIsbn()) {
+                return $book;
+            }
+        }
+
+        return;
+    }
+
     public function search($title, $isbn) {
         $result = [];
-
         foreach(array_values($this->books) as &$book) {
             $titleMatch = $this->partialMatch($title, $book->getTitle());
             $isbnMatch = $this->partialMatch($isbn, $book->getIsbn());

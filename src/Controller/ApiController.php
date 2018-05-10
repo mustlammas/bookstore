@@ -44,6 +44,22 @@ class ApiController extends Controller {
 
     /**
      * @Route("/api/v1/books/{isbn}")
+     * @Method("GET")
+     */
+    public function getByIsbn($isbn) {
+        $book = $this->bookService->getByIsbn($isbn);
+        if ($book) {
+            $json = $this->serializer->serialize($book);
+            return JsonResponse::fromJsonString($json);
+        } else {
+            $response =  new Response();
+            $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            return $response;
+        }
+    }
+
+    /**
+     * @Route("/api/v1/books/{isbn}")
      * @Method("POST")
      */
     public function add($isbn, Request $request) {

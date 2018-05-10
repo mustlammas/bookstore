@@ -11,28 +11,40 @@ class ApiClientTest extends TestCase {
 
     public function testListBooks() {
         $response = Request::get('http://localhost:8000/api/v1/books');
-        $this->assertEquals(200, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
     }
 
     public function testSearchForBooksByTitle() {
         $response = Request::get('http://localhost:8000/api/v1/books?title=cake');
-        $this->assertEquals(200, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
     }
 
     public function testSearchForBooksByIsbn() {
         $response = Request::get('http://localhost:8000/api/v1/books?isbn=86092');
-        $this->assertEquals(200, $response->code);
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
         $this->assertEquals("1-86092-022-5", $response->body[0]->isbn);
         $this->assertEquals("1-86092-010-1", $response->body[1]->isbn);
     }
 
     public function testSearchForBooksByIsbnAndTitle() {
-            $response = Request::get('http://localhost:8000/api/v1/books?isbn=56619&title=cake');
-            $this->assertEquals(200, $response->code);
-            $this->assertEquals("978-1-56619-909-4", $response->body[0]->isbn);
-            $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
-        }
+        $response = Request::get('http://localhost:8000/api/v1/books?isbn=56619&title=cake');
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
+        $this->assertEquals("978-1-56619-909-4", $response->body[0]->isbn);
+        $this->assertEquals("I Was Told There'd Be Cake", $response->body[0]->title);
+    }
+
+    public function testGetBookByIsbn() {
+        $response = Request::get('http://localhost:8000/api/v1/books/978-1-56619-909-4');
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_OK, $response->code);
+        $this->assertEquals("978-1-56619-909-4", $response->body->isbn);
+        $this->assertEquals("I Was Told There'd Be Cake", $response->body->title);
+    }
+
+    public function testGetBookByNonExistentIsbn() {
+        $response = Request::get('http://localhost:8000/api/v1/books/978-1-00000-000-4');
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND, $response->code);
+    }
 
     public function testAddBook() {
         $headers = array('Content-Type' => 'application/json');
