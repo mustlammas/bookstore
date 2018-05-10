@@ -11,6 +11,7 @@ use App\Dto\Book;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ApiController extends Controller
@@ -19,7 +20,7 @@ class ApiController extends Controller
 
     public function __construct() {
         $encoders = array(new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
+        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
         $this->serializer = new Serializer($normalizers, $encoders);
     }
 
