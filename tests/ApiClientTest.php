@@ -86,6 +86,11 @@ class ApiClientTest extends TestCase {
         $response = Request::post(ApiClientTest::BOOKS_URL . "/" . $isbn, $headers, $body);
         $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR, $response->code);
     }
+
+    public function testAddLabelToBook() {
+        $response = Request::post(ApiClientTest::BOOKS_URL . '/978-1-56619-909-4/labels/new-label');
+        $this->assertEquals(\Symfony\Component\HttpFoundation\Response::HTTP_CREATED, $response->code);
+    }
 }
 
 ?>

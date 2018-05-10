@@ -32,6 +32,10 @@ class Book {
     public function getLabels() {
         return $this->labels;
     }
+
+    public function addLabel($label) {
+        array_push($this->labels, new Label(0, $label));
+    }
 }
 
 ?>

@@ -93,6 +93,41 @@ class ApiController extends Controller {
 
         return $response;
     }
+
+    /**
+     * @Route("/api/v1/books/{isbn}/labels")
+     * @Method("GET")
+     */
+    public function labels($isbn, Request $request) {
+         $book = $this->bookService->getByIsbn($isbn);
+         if ($book) {
+             $json = $this->serializer->serialize($book->getLabels());
+             return JsonResponse::fromJsonString($json);
+         } else {
+              $response = new Response();
+              $response->setStatusCode(Response::HTTP_NOT_FOUND);
+              return $response;
+         }
+    }
+
+    /**
+     * @Route("/api/v1/books/{isbn}/labels/{label}")
+     * @Method("POST")
+     */
+    public function addLabel($isbn, $label) {
+        $book = $this->bookService->getByIsbn($isbn);
+
+        $response =  new Response();
+        if ($book) {
+            $this->bookService->addLabel($isbn, $label);
+            $response->setStatusCode(Response::HTTP_CREATED);
+            return $response;
+        } else {
+             $response = new Response();
+             $response->setStatusCode(Response::HTTP_NOT_FOUND);
+             return $response;
+        }
+    }
 }
 
 ?>

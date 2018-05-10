@@ -44,6 +44,11 @@ class BookService {
         $this->books[$book->getIsbn()] = $book;
     }
 
+    public function addLabel($isbn, $label) {
+        $book = $this->getByIsbn($isbn);
+        $book->addLabel($label);
+    }
+
     function partialMatch($search, $candidate) {
         if (empty($search)) {
             return true;
