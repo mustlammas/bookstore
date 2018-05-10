@@ -24,11 +24,14 @@ class ApiController extends Controller
         $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
         $this->serializer = new Serializer($normalizers, $encoders);
         $this->books = new InMemoryBookStore();
+
+        $this->books->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
+        $this->books->add(new Book("1-86092-022-5", "A Boy at Seven", new DateTime()));
+        $this->books->add(new Book("1-86092-010-1", "The Higgler", new DateTime()));
     }
 
     public function list()
     {
-         # $book = new Book("978-1-56619-909-4 ", "I Was Told There'd Be Cake", new DateTime());
          $json = $this->serializer->serialize($this->books->getAll(), 'json');
          return new Response($json);
     }

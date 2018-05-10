@@ -14,7 +14,7 @@ class InMemoryBookStore {
 
     public function getAll()
     {
-        return $this->books;
+        return array_values($this->books);
     }
 }
 
