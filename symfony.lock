@@ -23,6 +23,9 @@
     "doctrine/lexer": {
         "version": "v1.0.1"
     },
+    "mashape/unirest-php": {
+        "version": "v3.0.4"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
