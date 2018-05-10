@@ -10,7 +10,7 @@ class Book {
     private $addedOn;
     private $labels;
 
-    public function __construct($isbn, $title, $addedOn, $labels) {
+    public function __construct($isbn, $title, $addedOn, $labels = []) {
         $this->isbn = $isbn;
         $this->title = $title;
         $this->addedOn = $addedOn;
