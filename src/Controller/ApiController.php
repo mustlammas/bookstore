@@ -11,14 +11,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Psr\Log\LoggerInterface;
 
 class ApiController extends Controller
 {
     private $serializer;
     private $books;
+    private $logger;
 
-    public function __construct(JsonSerializer $serializer) {
+    public function __construct(JsonSerializer $serializer, LoggerInterface $logger) {
         $this->serializer = $serializer;
+        $this->logger = $logger;
         $this->books = new InMemoryBookStore();
 
         $this->books->add(new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime()));
@@ -37,13 +40,15 @@ class ApiController extends Controller
     }
 
     /**
-     * @Route("/api/v1/books")
+     * @Route("/api/v1/books/{isbn}")
      * @Method("POST")
      */
-    public function add($json)
+    public function add($isbn)
     {
-        $book = $this->serializer->deserialize($json, Book::class);
-        $this->books->add($book);
+        $this->logger->info("Adding book: " . $isbn);
+        //$book = $this->serializer->deserialize($json, Book::class);
+        //$this->books->add($book);
+        return new JsonResponse();
     }
 }
 
