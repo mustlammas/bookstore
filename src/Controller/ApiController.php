@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use \Datetime;
 use App\Dto\Book;
@@ -24,11 +23,10 @@ class ApiController extends Controller
         $this->serializer = new Serializer($normalizers, $encoders);
     }
 
-    public function list(LoggerInterface $logger)
+    public function list()
     {
          $book = new Book("978-1-56619-909-4 ", "I Was Told There'd Be Cake", new DateTime());
          $json = $this->serializer->serialize($book, 'json');
-         # $logger->info($json);
 
          return new Response($json);
     }
