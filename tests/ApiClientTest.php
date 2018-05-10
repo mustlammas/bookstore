@@ -7,10 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Unirest\Request\Body;
 use Unirest\Request;
 
-class ApiClientTest extends TestCase
-{
-    public function testAddBook()
-    {
+class ApiClientTest extends TestCase {
+
+    public function testListBooks() {
+        $response = Request::get('http://localhost:8000/api/v1/books');
+        $this->assertEquals(200, $response->code);
+    }
+
+    public function testAddBook() {
         $headers = array('Content-Type' => 'application/json');
         $isbn = "978-1-56619-666-5";
         $data = array(
@@ -23,8 +27,7 @@ class ApiClientTest extends TestCase
         $this->assertEquals(201, $response->code);
     }
 
-    public function testAddBookInvalidContentType()
-    {
+    public function testAddBookInvalidContentType() {
         $headers = array('Content-Type' => 'application/xml');
         $isbn = "978-1-56619-666-5";
         $data = array(
@@ -37,8 +40,7 @@ class ApiClientTest extends TestCase
         $this->assertEquals(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $response->code);
     }
 
-    public function testAddBookInvalidContent()
-    {
+    public function testAddBookInvalidContent() {
         $headers = array('Content-Type' => 'application/json');
         $isbn = "978-1-56619-666-5";
         $data = array(
