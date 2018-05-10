@@ -8,11 +8,13 @@ use App\InMemoryBookStore;
 use App\Service\JsonSerializer;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ApiController extends Controller
 {
@@ -34,8 +36,7 @@ class ApiController extends Controller
      * @Route("/api/v1/books")
      * @Method("GET")
      */
-    public function list()
-    {
+    public function list() {
          $json = $this->serializer->serialize($this->books->getAll());
          return JsonResponse::fromJsonString($json);
     }
@@ -44,13 +45,21 @@ class ApiController extends Controller
      * @Route("/api/v1/books/{isbn}")
      * @Method("POST")
      */
-    public function add($isbn, Request $request)
-    {
-        $content = $request->getContent();
-        $this->logger->info("Adding book: " . $isbn);
-        $book = $this->serializer->deserialize($content, Book::class);
-        $this->books->add($book);
-        return new JsonResponse();
+    public function add($isbn, Request $request) {
+        $contentType = $request->headers->get('Content-Type');
+
+        $response =  new Response();
+        if ($contentType == 'application/json') {
+            $content = $request->getContent();
+            $this->logger->info("Adding book: " . $isbn);
+            $book = $this->serializer->deserialize($content, Book::class);
+            $this->books->add($book);
+            $response->setStatusCode(Response::HTTP_CREATED);
+        } else {
+            $response->setStatusCode(Response::HTTP_UNSUPPORTED_MEDIA_TYPE);
+        }
+
+        return $response;
     }
 }
 
