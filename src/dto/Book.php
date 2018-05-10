@@ -1,12 +1,18 @@
 <?php
 
-namespace App
+namespace App\Dto;
 
 class Book
 {
     private $isbn;
     private $title;
     private $addedOn;
+
+    public function __construct($isbn, $title, $addedOn) {
+        $this->isbn = $isbn;
+        $this->title = $title;
+        $this->addedOn = $addedOn;
+    }
 
     public function getIsbn()
     {
