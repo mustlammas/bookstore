@@ -1,0 +1,3 @@
+book_list:
+    path: /books
+    controller:  App\Controller\ApiController::list
