@@ -51,7 +51,7 @@ final class Version20180512074143 extends AbstractMigration
         $bookToLabel->addColumn('isbn', 'string', array('length' => 50));
         $bookToLabel->addColumn('label_id', 'integer');
         $bookToLabel->addForeignKeyConstraint($books, ['isbn'], ['isbn'], [], 'FK_book_to_label_book');
-        $bookToLabel->addForeignKeyConstraint($labels, ['label_id'], ['id'], [], 'FK_book_to_label_book');
+        $bookToLabel->addForeignKeyConstraint($labels, ['label_id'], ['id'], [], 'FK_book_to_label_label');
         $bookToLabel->addUniqueIndex(['isbn', 'label_id'], 'UQ_IDX_book_to_label');
     }
 
