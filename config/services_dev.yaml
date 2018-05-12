@@ -11,3 +11,4 @@ services:
     App\Service\BookService:
       class: App\Service\InMemoryBookService
       public: false
+      autowire: true

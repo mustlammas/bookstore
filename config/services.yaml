@@ -29,3 +29,4 @@ services:
     App\Service\BookService:
       class: App\Service\DatabaseBookService
       public: false
+      autowire: true
