@@ -29,7 +29,7 @@ class ApiController extends Controller {
     }
 
     /**
-     * @Route("/api/v1/books")
+     * @Route("/api/v1/books/")
      * @Method("GET")
      */
     public function list(Request $request) {
@@ -77,7 +77,7 @@ class ApiController extends Controller {
     }
 
     /**
-     * @Route("/api/v1/books/{isbn}/labels")
+     * @Route("/api/v1/books/{isbn}/labels/")
      * @Method("GET")
      */
     public function labels($isbn, Request $request) {
