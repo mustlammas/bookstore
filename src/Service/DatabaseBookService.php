@@ -10,7 +10,6 @@ use \PDO;
 use Doctrine\DBAL\Driver\Connection;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
-// TODO: move database access to a separate service class
 class DatabaseBookService implements BookService {
 
     private $logger;
