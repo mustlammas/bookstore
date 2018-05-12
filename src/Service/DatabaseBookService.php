@@ -57,13 +57,19 @@ class DatabaseBookService implements BookService {
 
         $queryBuilder = $this->connection->createQueryBuilder();
         $rows = $queryBuilder
-            ->select('b.isbn', 'b.title', 'b.added_on', 'l.value AS label')
+            ->select('b.isbn', 'b.title as title', 'b.added_on', 'l.value AS label')
             ->from('books', 'b')
             ->leftJoin('b', 'book_to_label', 'bl', 'bl.isbn = b.isbn')
             ->leftJoin('bl', 'labels', 'l', 'l.id = bl.label_id')
             ->orderBy('b.isbn')
-            ->where($queryBuilder->expr()->like('b.isbn', '?'))
+            ->where(
+              $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->like('b.isbn', '?'),
+                $queryBuilder->expr()->like('UPPER(b.title)', '?')
+              )
+            )
             ->setParameter(0, '%' . $isbn . '%')
+            ->setParameter(1, '%' . strtoupper($title) . '%')
             ->execute()
             ->fetchAll();
 
