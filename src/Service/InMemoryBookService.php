@@ -16,9 +16,9 @@ class InMemoryBookService implements BookService {
     public function __construct(LoggerInterface $logger) {
       $this->logger = $logger;
       $this->books = array(
-        "978-1-56619-909-4" => new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime(), [new Label(1, "Fiction")]),
-        "1-86092-022-5" => new Book("1-86092-022-5", "A Boy at Seven", new DateTime(), [new Label(2, "Science Fiction")]),
-        "1-86092-010-1" => new Book("1-86092-010-1", "The Higgler", new DateTime(), [new Label(3, "Biography")])
+        "978-1-56619-909-4" => new Book("978-1-56619-909-4", "I Was Told There'd Be Cake", new DateTime(), ["Fiction"]),
+        "1-86092-022-5" => new Book("1-86092-022-5", "A Boy at Seven", new DateTime(), ["Science Fiction"]),
+        "1-86092-010-1" => new Book("1-86092-010-1", "The Higgler", new DateTime(), ["Biography"])
       );
     }
 

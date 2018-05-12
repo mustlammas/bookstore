@@ -34,7 +34,7 @@ class Book {
     }
 
     public function addLabel($label) {
-        array_push($this->labels, new Label(0, $label));
+        array_push($this->labels, $label);
     }
 }
 

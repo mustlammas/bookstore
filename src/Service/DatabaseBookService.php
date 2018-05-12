@@ -26,14 +26,13 @@ class DatabaseBookService implements BookService {
       $this->logger->info("Get by ISBN: isbn = '{$isbn}'" );
 
       $queryBuilder = $this->connection->createQueryBuilder();
-      $result = $queryBuilder
+      return $queryBuilder
           ->select('isbn', 'title', 'added_on')
           ->from('books')
           ->where($queryBuilder->expr()->eq('isbn', '?'))
           ->setParameter(0, $isbn)
-          ->execute();
-
-      return $result->fetch();
+          ->execute()
+          ->fetch();
     }
 
     public function search($title, $isbn) {
@@ -41,19 +40,36 @@ class DatabaseBookService implements BookService {
 
         $queryBuilder = $this->connection->createQueryBuilder();
         $result = $queryBuilder
-            ->select('isbn', 'title', 'added_on')
-            ->from('books')
-            ->where(
-              $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->like('isbn', '?'),
-                $queryBuilder->expr()->like('title', '?')
-              )
-            )
+            ->select('b.isbn', 'b.title', 'b.added_on', 'l.value AS label')
+            ->from('books', 'b')
+            ->leftJoin('b', 'book_to_label', 'bl', 'bl.isbn = b.isbn')
+            ->leftJoin('bl', 'labels', 'l', 'l.id = bl.label_id')
+            ->orderBy('b.isbn')
+            ->where($queryBuilder->expr()->like('b.isbn', '?'))
             ->setParameter(0, '%' . $isbn . '%')
-            ->setParameter(1, '%' . $title . '%')
             ->execute();
 
-        return $result->fetchAll();
+        $rows = $result->fetchAll();
+
+        $books = [];
+        foreach($rows as $row) {
+          $book;
+          if (isset($books[$row['isbn']])) {
+            $book = $books[$row['isbn']];
+          } else {
+            $book = new Book(
+              $row['isbn'],
+              $row['title'],
+              $row['added_on'],
+              []
+            );
+            $books[$row['isbn']] = $book;
+          }
+
+          $book->addLabel($row['label']);
+        }
+
+        return $books;
     }
 
     public function add(Book $book) {
@@ -64,29 +80,89 @@ class DatabaseBookService implements BookService {
       if ($existing) {
         throw new ConflictHttpException();
       } else {
-        $this->connection->insert('books', [
-          'isbn' => $book->getIsbn(),
-          'title' => $book->getTitle(),
-          'added_on' => new DateTime()
-        ], [
-            PDO::PARAM_STR,
-            PDO::PARAM_STR,
-            'datetime',
-        ]);
+        $this->connection->beginTransaction();
+        try{
+          $this->connection->insert('books', [
+            'isbn' => $isbn,
+            'title' => $book->getTitle(),
+            'added_on' => new DateTime()
+          ], [
+              PDO::PARAM_STR,
+              PDO::PARAM_STR,
+              'datetime',
+          ]);
+
+          foreach($book->getLabels() as $label) {
+            $this->addLabel($isbn, $label);
+          }
+
+          $this->connection->commit();
+        } catch (\Exception $e) {
+          $this->connection->rollBack();
+          throw $e;
+        }
       }
     }
 
     public function addLabel($isbn, $label) {
-        $book = $this->getByIsbn($isbn);
-        $book->addLabel($label);
+      $this->connection->beginTransaction();
+      try{
+          $labelId = $this->getLabelId($label);
+          if (!$labelId) {
+            $this->connection->insert('labels', [
+              'value' => $label
+            ], [
+                PDO::PARAM_STR
+            ]);
+
+            $labelId = $this->connection->lastInsertId();
+          }
+
+          $bookToLabel = $this->getBookToLabel($isbn, $labelId);
+
+          if (!$bookToLabel) {
+            $this->connection->insert('book_to_label', [
+              'isbn' => $isbn,
+              'label_id' => $labelId
+            ], [
+                PDO::PARAM_STR,
+                PDO::PARAM_INT
+            ]);
+          }
+
+          $this->connection->commit();
+      } catch (\Exception $e) {
+          $this->connection->rollBack();
+          throw $e;
+      }
     }
 
-    function partialMatch($search, $candidate) {
-        if (empty($search)) {
-            return true;
-        } else {
-            return strpos(strtoupper($candidate), strtoupper($search));
-        }
+    function getLabelId($label) {
+      $queryBuilder = $this->connection->createQueryBuilder();
+      return $queryBuilder
+          ->select('id')
+          ->from('labels')
+          ->where($queryBuilder->expr()->eq('value', '?'))
+          ->setParameter(0, $label)
+          ->execute()
+          ->fetch()['id'];
+    }
+
+    function getBookToLabel($isbn, $labelId) {
+      $queryBuilder = $this->connection->createQueryBuilder();
+      return $queryBuilder
+          ->select('isbn')
+          ->from('book_to_label')
+          ->where(
+            $queryBuilder->expr()->andX(
+              $queryBuilder->expr()->eq('isbn', '?'),
+              $queryBuilder->expr()->eq('label_id', '?')
+            )
+          )
+          ->setParameter(0, $isbn)
+          ->setParameter(1, $labelId)
+          ->execute()
+          ->fetch()['isbn'];
     }
 }
 

@@ -101,7 +101,7 @@ class ApiController extends Controller {
 
         $response =  new Response();
         if ($book) {
-            $this->bookService->addLabel($isbn, $label);
+            $this->bookService->addLabel($isbn, urldecode($label));
             $response->setStatusCode(Response::HTTP_CREATED);
             return $response;
         } else {
