@@ -14,7 +14,7 @@ use \DateTime;
 use \RuntimeException;
 
 /**
-  Tests for the REST API.
+  A command for populating the database through REST API calls.
 */
 class PostTestDataCommand extends Command {
 

@@ -25,20 +25,38 @@ class DatabaseBookService implements BookService {
       $this->logger->info("Get by ISBN: isbn = '{$isbn}'" );
 
       $queryBuilder = $this->connection->createQueryBuilder();
-      return $queryBuilder
-          ->select('isbn', 'title', 'added_on')
-          ->from('books')
-          ->where($queryBuilder->expr()->eq('isbn', '?'))
+      $rows = $queryBuilder
+          ->select('b.isbn', 'b.title', 'b.added_on', 'l.value AS label')
+          ->from('books', 'b')
+          ->leftJoin('b', 'book_to_label', 'bl', 'bl.isbn = b.isbn')
+          ->leftJoin('bl', 'labels', 'l', 'l.id = bl.label_id')
+          ->where($queryBuilder->expr()->eq('b.isbn', '?'))
           ->setParameter(0, $isbn)
           ->execute()
-          ->fetch();
+          ->fetchAll();
+
+      $book = NULL;
+      foreach($rows as $row) {
+        if ($book === NULL) {
+          $book = new Book(
+            $row['isbn'],
+            $row['title'],
+            $row['added_on'],
+            [$row['label']]
+          );
+        } else {
+          $book->addLabel($row['label']);
+        }
+      }
+
+      return $book;
     }
 
     public function search($title, $isbn) {
         $this->logger->info("Searching for books: isbn = '{$isbn}', title = '{$title}'" );
 
         $queryBuilder = $this->connection->createQueryBuilder();
-        $result = $queryBuilder
+        $rows = $queryBuilder
             ->select('b.isbn', 'b.title', 'b.added_on', 'l.value AS label')
             ->from('books', 'b')
             ->leftJoin('b', 'book_to_label', 'bl', 'bl.isbn = b.isbn')
@@ -46,9 +64,8 @@ class DatabaseBookService implements BookService {
             ->orderBy('b.isbn')
             ->where($queryBuilder->expr()->like('b.isbn', '?'))
             ->setParameter(0, '%' . $isbn . '%')
-            ->execute();
-
-        $rows = $result->fetchAll();
+            ->execute()
+            ->fetchAll();
 
         $books = [];
         foreach($rows as $row) {
@@ -60,7 +77,7 @@ class DatabaseBookService implements BookService {
               $row['isbn'],
               $row['title'],
               $row['added_on'],
-              []
+              [$row['label']]
             );
             $books[$row['isbn']] = $book;
           }
