@@ -34,10 +34,6 @@ class InMemoryBookService implements BookService {
 
     public function search($title, $isbn) {
         $result = [];
-        $this->logger->info("TESTING::::::::::");
-        $this->logger->info(gettype($this->books));
-
-
         foreach($this->books as $bookIsbn => $book) {
             $titleMatch = $this->partialMatch($title, $book->getTitle());
             $isbnMatch = $this->partialMatch($isbn, $bookIsbn);

@@ -9,6 +9,6 @@ services:
     # test.App\Service\MyService: '@App\Service\MyService'
 
     App\Service\BookService:
-      class: App\Service\InMemoryBookService
+      class: App\Service\DatabaseBookService
       public: false
       autowire: true

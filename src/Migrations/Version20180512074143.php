@@ -12,7 +12,7 @@ final class Version20180512074143 extends AbstractMigration
         $books = $schema->createTable('books');
         $books->addColumn('isbn', 'string', array('length' => 50));
         $books->addColumn('title', 'string', array('length' => 200));
-        $books->addColumn('added_on', 'datetime');
+        $books->addColumn('added_on', 'datetimetz');
         $books->setPrimaryKey(array('isbn'));
 
         $labels = $schema->createTable('labels');
