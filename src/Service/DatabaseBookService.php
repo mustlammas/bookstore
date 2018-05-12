@@ -8,7 +8,9 @@ use Psr\Log\LoggerInterface;
 use \DateTime;
 use \PDO;
 use Doctrine\DBAL\Driver\Connection;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
+// TODO: move database access to a separate service class
 class DatabaseBookService implements BookService {
 
     private $logger;
@@ -21,9 +23,19 @@ class DatabaseBookService implements BookService {
     }
 
     public function getByIsbn($isbn) {
+      $this->logger->info("Get by ISBN: isbn = '{$isbn}'" );
+
+      $queryBuilder = $this->connection->createQueryBuilder();
+      $result = $queryBuilder
+          ->select('isbn', 'title', 'added_on')
+          ->from('books')
+          ->where($queryBuilder->expr()->eq('isbn', '?'))
+          ->setParameter(0, $isbn)
+          ->execute();
+
+      return $result->fetch();
     }
 
-    //TODO: use mysql_real_escape_string()
     public function search($title, $isbn) {
         $this->logger->info("Searching for books: isbn = '{$isbn}', title = '{$title}'" );
 
@@ -41,19 +53,27 @@ class DatabaseBookService implements BookService {
             ->setParameter(1, '%' . $title . '%')
             ->execute();
 
-        return $result;
+        return $result->fetchAll();
     }
 
     public function add(Book $book) {
-      $this->connection->insert('books', [
-        'isbn' => $book->getIsbn(),
-        'title' => $book->getTitle(),
-        'added_on' => new DateTime()
-      ], [
-          PDO::PARAM_STR,
-          PDO::PARAM_STR,
-          'datetime',
-      ]);
+      $isbn = $book->getIsbn();
+      $this->logger->info("Adding book: isbn = {$isbn}");
+
+      $existing = $this->getByIsbn($isbn);
+      if ($existing) {
+        throw new ConflictHttpException();
+      } else {
+        $this->connection->insert('books', [
+          'isbn' => $book->getIsbn(),
+          'title' => $book->getTitle(),
+          'added_on' => new DateTime()
+        ], [
+            PDO::PARAM_STR,
+            PDO::PARAM_STR,
+            'datetime',
+        ]);
+      }
     }
 
     public function addLabel($isbn, $label) {
